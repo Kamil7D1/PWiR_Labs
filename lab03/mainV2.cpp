@@ -52,17 +52,20 @@ int main(int argv, char *argc[]){
         cout << "Jestem procesem " << rank << " i to jest moj max " << mx <<endl;
     }
 
+    int localMx = tab[0];
+    for (int i = 1; i < nRank; i++) {
+        localMx = max(localMx, tab[i]);
+    }
+
     int globalMx = 0;
-
-    MPI_Reduce(&tab, &globalMx,  1, MPI_INT, MPI_MAX, size - 1, MPI_COMM_WORLD);
-
-
-    cout << "Wartosc maksymalna dla wszystkich procesow wynosi " << globalMx << endl; 
+    MPI_Reduce(&localMx, &globalMx,  1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
 
 
     if (rank == 0) {
-        delete[] tab;  // Zwalnianie pamięci tylko w rankingu 0
+        cout << "Wartosc maksymalna dla wszystkich procesow wynosi " << globalMx << endl;
+        delete[] tab; // Free memory only in rank 0
     }
+
 	MPI_Finalize(); 
 
     return 0;
